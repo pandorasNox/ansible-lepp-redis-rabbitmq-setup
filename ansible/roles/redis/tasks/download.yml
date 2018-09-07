@@ -1,0 +1,37 @@
+
+
+- name: update apt cache
+  apt:
+    update_cache: "yes"
+
+- name: install required packages
+  apt:
+    name: "{{ item }}"
+    state: "present"
+  with_items:
+    - build-essential
+    - tcl
+
+- name: download redis
+  get_url:
+    url: "{{ redis_download_url }}"
+    dest: /usr/local/src/redis-{{ redis_version }}.tar.gz
+    checksum: "{{ redis_checksum|default(omit) }}"
+  # when: not redis_tarball
+
+# - name: upload redis
+#   copy:
+#     src: "{{ redis_tarball }}"
+#     dest: /usr/local/src/redis-{{ redis_version }}.tar.gz
+#   when: redis_tarball|default(false)
+
+- name: extract redis tarball
+  unarchive:
+    src: /usr/local/src/redis-{{ redis_version }}.tar.gz
+    dest: /usr/local/src
+    creates: /usr/local/src/redis-{{ redis_version }}/Makefile
+    copy: no
+
+
+# 
+
